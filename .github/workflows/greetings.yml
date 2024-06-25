@@ -1,19 +1,18 @@
 name: 'Greetings'
 
 on:
-  fork:
   push:
     branches: [main]
   issues:
     types: [opened]
-  pull_request_target:
+  pull_request:
     types: [opened]
 
 jobs:
   welcome:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v1
+      - uses: actions/checkout@v2 
       - uses: EddieHubCommunity/gh-action-community/src/welcome@main
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
@@ -22,12 +21,11 @@ jobs:
 
             Thanks for creating this issue and contributing to SyntaxUI!
 
-            [@Ansub](https://github.com/Ansub) will review your issue soon and provide feedback. In the meantime, feel free to join the [discord](https://discord.com/invite/P8GXYyH3ZU) community, It's a great place to discuss the project, ask questions, and connect with other contributors.
+            [@Ansub](https://github.com/Ansub) will review your issue soon and provide feedback. In the meantime, feel free to join the [discord](https://discord.com/invite/P8GXYyH3ZU) community. It's a great place to discuss the project, ask questions, and connect with other contributors.
           pr-message: |
             Awesome work, @${{ github.actor }}! 🎉 Thank you for your contribution and efforts to enhance SyntaxUI. 
 
             [@Ansub](https://github.com/Ansub) will review your changes soon and provide feedback.
 
             Feel free to join the [Discord](https://discord.com/invite/P8GXYyH3ZU) community to engage with other contributors.
-
           footer: 'Please ensure that you have followed the [contributing guidelines](https://github.com/Ansub/SyntaxUI/blob/main/CONTRIBUTING.md) for a smooth review process.'
