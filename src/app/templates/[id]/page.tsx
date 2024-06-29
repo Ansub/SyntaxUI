@@ -8,10 +8,11 @@ import Nextjs from '@/components/Logos/NextJS'
 import TailwindCSS from '@/components/Logos/Tailwind'
 import { TemplateData } from '@/data/TemplateData'
 import { cn } from '@/lib/utils'
+import { AnimatePresence, motion } from 'framer-motion'
 import { ChevronLeft } from 'lucide-react'
-import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useState } from 'react'
 
 const TemplateButton = ({
   href,
@@ -28,7 +29,7 @@ const TemplateButton = ({
       target="_blank"
       rel="noreferrer"
       className={cn(
-        `hover:bg-red-500/90" rounded-lg bg-red-500 px-2 py-1 text-sm font-medium text-white transition-all duration-300 ease-in-out`,
+        `rounded-lg bg-red-500 px-2 py-1 text-sm font-medium text-white transition-all duration-300 ease-in-out hover:bg-red-500/90`,
         variant === 'primary' && 'bg-red-500 text-white',
         variant === 'secondary' &&
           'border bg-white text-gray-900 hover:bg-gray-100/50',
@@ -42,8 +43,8 @@ const TemplateButton = ({
 const Template = () => {
   const router = usePathname()
   const slug = router.replace('/templates/', '')
-
   const template = TemplateData.find((t) => t.id === slug)
+  const [selectedImage, setSelectedImage] = useState<string | null>(null)
 
   if (!template) {
     return <NotFound />
@@ -81,9 +82,9 @@ const Template = () => {
               {template.description}
             </div>
             <div className="flex flex-row gap-3">
-              <FramerLogo className="h-5 w-5 brightness-0  dark:invert" />
+              <FramerLogo className="h-5 w-5 brightness-0 dark:invert" />
               <Nextjs className="h-5 w-5" />
-              <TailwindCSS className="h-5 w-5 brightness-0  dark:invert" />
+              <TailwindCSS className="h-5 w-5 brightness-0 dark:invert" />
             </div>
             <div className="flex flex-row gap-2">
               <Link
@@ -104,19 +105,55 @@ const Template = () => {
           </div>
           <div className="flex flex-col items-center justify-center gap-5">
             {template.images.map((image, index) => (
-              <Image
-                key={index}
-                src={image}
-                alt={template.name}
-                width={1200}
-                height={600}
-                className="w-full max-w-[800px] rounded-lg border"
-              />
+              <motion.div layoutId={`image-${index}`} key={index}>
+                <motion.img
+                  layoutId={`image-${index}-main`}
+                  src={image}
+                  alt={template.name}
+                  width={1200}
+                  height={600}
+                  className="w-full max-w-[800px] cursor-pointer rounded-lg border"
+                  onClick={() => setSelectedImage(image)}
+                />
+              </motion.div>
             ))}
           </div>
         </div>
       </div>
       <Footer />
+
+      <>
+        <AnimatePresence>
+          {selectedImage && (
+            <motion.div
+              layoutId={`overlay-black-${template.images.indexOf(selectedImage)}`}
+              className="fixed inset-0 z-[49] bg-black bg-opacity-70"
+              onClick={() => setSelectedImage(null)}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+            />
+          )}
+        </AnimatePresence>
+        <AnimatePresence>
+          {selectedImage && (
+            <motion.div
+              layoutId={`overlay-div-${template.images.indexOf(selectedImage)}`}
+              className="fixed inset-0 z-50 flex items-center justify-center"
+              onClick={() => setSelectedImage(null)}
+            >
+              <motion.img
+                src={selectedImage}
+                layoutId={`image-${template.images.indexOf(selectedImage)}`}
+                alt="Selected"
+                width={1400}
+                height={1080}
+                className="h-full w-full max-w-4xl rounded-lg object-contain"
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </>
     </div>
   )
 }
