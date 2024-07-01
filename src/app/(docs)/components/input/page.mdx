@@ -16,14 +16,15 @@ Some Key Features of Tag Input are:
 - Add keywords by pressing Enter or comma
 - Remove keywords by clicking the remove button (X icon) or pressing Backspace
 - Paste multiple keywords separated by commas, new lines, or tabs
+- Prevents duplicate keywords by using the unique prop
 
 <div className="mb-4"></div>
 <Preview>
 <div className="max-w-md w-full my-12">
-<TagInput/>
+  <TagInput unique />
 </div>
 </Preview>
- <CodeGroup title="TagInput.tsx">
+<CodeGroup title="TagInput.tsx">
 
     ```jsx {{ title: 'React' }}
 
@@ -33,11 +34,13 @@ import { X } from 'lucide-react'
 interface KeywordsInputProps {
 initialKeywords?: string[]
 onKeywordsChange: (keywords: string[]) => void
+unique: boolean
 }
 
 const KeywordsInput: React.FC<KeywordsInputProps> = ({
 initialKeywords = [],
 onKeywordsChange,
+unique = false,
 }) => {
 const [keywords, setKeywords] = useState<string[]>(initialKeywords)
 const [inputValue, setInputValue] = useState<string>('')
@@ -49,7 +52,9 @@ if (
 event.key === ',') && inputValue.trim() !== ''
 ) {
 event.preventDefault()
-const newKeywords = [...keywords, inputValue.trim()]
+const newKeywords = unique
+? [...new Set([...keywords, newKeyword])]
+: [...keywords, newKeyword]
 setKeywords(newKeywords)
 onKeywordsChange(newKeywords)
 setInputValue('')
@@ -70,7 +75,9 @@ const keywordsToAdd = paste
 .map((keyword) => keyword.trim())
 .filter(Boolean)
 if (keywordsToAdd.length) {
-const newKeywords = [...keywords, ...keywordsToAdd]
+const newKeywords = unique
+? [...new Set([...keywords, ...keywordsToAdd])]
+: [...keywords, ...keywordsToAdd]
 setKeywords(newKeywords)
 onKeywordsChange(newKeywords)
 setInputValue('')
@@ -93,7 +100,7 @@ setInputValue('')
 
 // Removes a keyword from the list
 const removeKeyword = (indexToRemove: number) => {
-const newKeywords = keywords.filter((_, index) => index !== indexToRemove)
+const newKeywords = keywords.filter((\_, index) => index !== indexToRemove)
 setKeywords(newKeywords)
 onKeywordsChange(newKeywords)
 }
@@ -154,6 +161,7 @@ return (
   <KeywordsInput
     initialKeywords={keywords}
     onKeywordsChange={handleKeywordsChange}
+    unique
   />
 </>
 ); };
